@@ -1,0 +1,111 @@
+--sudo <-최상위 권환 부여
+
+
+sudo apt-get update //저장소의 정보를 최신으로 업데이트  
+sudo apt update
+sudo apt install vim //편집기
+
+
+nginx은 웹서버 -->정적 리소스 (자바스크립트,이미지..
+tomcat은 was ->동적 리소스 (자바
+
+
+sudo apt-get install nginx
+
+sudo apt-get install openjdk-8-jdk //자바설치
+
+톰캣 설치 
+
+wget 다운 톰캣 홈페이지가서 tar.gz 링크주소복사
+tar xvf 파일명
+cd 아파치 폴더명
+bin/start.sh//톰캣 시작
+bin/stop.sh
+
+
+
+
+//ssl 설치툴
+sudo apt-get install certbot python-certbot-nginx
+DNS설정 변경
+//설치툴 깔리면cp
+
+sudo vi /etc/nginx/sites-enabled/kim-min-ki.shop
+
+upstream tomcat {
+        ip_hash;
+        server 34.64.132.123:8080;
+}
+
+
+
+server {
+        server_name kim-min-ki.shop;
+        location / {
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header Host $http_host;
+
+                proxy_pass http://tomcat;
+                proxy_redirect off;
+                charset utf-8;
+
+
+        }
+}
+
+--wq//저장
+
+sudo certbot --nginx -d kim-min-ki.shop
+
+
+
+
+--db설치
+sudo apt-get install software-properties-common
+sudo apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'
+sudo add-apt-repository 'deb [arch=amd64,arm64,ppc64el] https://ftp.harukasan.org/mariadb/repo/10.5/ubuntu bionic main'
+
+sudo apt update
+sudo apt install mariadb-server
+
+sudo mysql_secure_installation
+
+vi /etc/mysql/mariadb.conf.d/50-server.cnf
+
+
+
+bind-address 주석처리
+
+
+character-set-server = utf8mb4 가 있는지 확인하고(없으면 추가할 것),
+
+collation-server = utf8mb4_general_ci 를 주석처리하고,
+
+collation-server = utf8mb4_unicode_ci 라고 추가한 다음 저장+빠져나옵니다
+
+sudo mysql -u root -p
+
+
+create user 'mindae'@'%' identified by 'mindae1234';
+
+grant all privileges on *.* to 'mindae'@'%' with grant option;
+m
+flush privileges;
+
+exit;
+
+
+sudo service mysql restart
+http://34.64.204.33/
+
+ <WatchedResource>WEB-INF/web.xml</WatchedResource>
+    <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
+           <Resource auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/board_project?autoReconnection=true"
+              name="jdbc/board_project"
+              username="mindae"
+              password="mindae1234"/>
+
